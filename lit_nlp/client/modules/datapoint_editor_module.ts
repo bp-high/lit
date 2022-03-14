@@ -70,6 +70,7 @@ export class DatapointEditorModule extends LitModule {
   @observable datapointEdited: boolean = false;
   @observable inputHeights: {[name: string]: string} = {};
   @observable maximizedImageFields = new Set<string>();
+  @observable focusedToken = -1;
 
   @computed
   get dataTextLengths(): {[key: string]: number} {
@@ -89,10 +90,10 @@ export class DatapointEditorModule extends LitModule {
       const fieldSpec = spec[key];
       const isListField = isLitSubtype(
           fieldSpec, ['SparseMultilabel', 'Tokens', 'SequenceTags']);
+      if (isListField) continue;
       const lengths = this.appState.currentInputData.map(indexedInput => {
         const value = indexedInput.data[key];
-        return isListField ? value?.join(fieldSpec.separator ?? ',').length :
-                             value?.length;
+        return value?.length;
       });
       defaultLengths[key] = d3.quantile(lengths, percentileForDefault) ?? 1;
       // Override if the distribution is short-tailed, we can expand a bit to
@@ -284,7 +285,7 @@ export class DatapointEditorModule extends LitModule {
       ${resetButton}
       ${clearButton}
     `;
-    // clang-format off
+    // clang-format on
   }
 
   renderEditText() {
@@ -383,17 +384,54 @@ export class DatapointEditorModule extends LitModule {
 
     // Render tokens as space-separated, but re-split for editing.
     const renderTokensInput = () => {
-      const handleTokensInput = (e: Event) => {
-        handleInputChange(e, (value: string): string[] => {
-          // If value is empty, return [] instead of ['']
-          return value ? value.split(' ') : [];
-        });
+      const tokenValues = value == null ? [] : [...value];
+      const tokenRenders = [];
+      for (let i = 0; i < tokenValues.length; i++) {
+        const tokenOrigValue = tokenValues[i];
+        const handleTokenInput = (e: Event) => {
+          handleInputChange(e, (tokenValue: string): string[] => {
+            tokenValues[i] = tokenValue;
+            return tokenValues;
+          });
+        };
+        const handleTokenFocus = () => {
+          this.focusedToken = i;
+        };
+        const deleteToken = (e: Event) => {
+          handleInputChange(e, (): string[] => {
+            tokenValues.splice(i, 1);
+            return tokenValues;
+          });
+        };
+        const renderDeleteButton = () =>
+          this.focusedToken === i ?
+              // clang-format off
+              html`<mwc-icon class="icon-button delete-button"
+                             @click=${deleteToken}>delete</mwc-icon>` :
+              // clang-format on
+              null;
+        tokenRenders.push(
+            // clang-format off
+            html`<div class="token-holder" @focusin=${handleTokenFocus}>
+                   <textarea class="token-box" style="${styleMap(inputStyle)}"
+                             @input=${handleTokenInput}
+                             ?readonly="${!editable}">${tokenOrigValue}
+                   </textarea>
+                   ${renderDeleteButton()}
+                 </div>`);
+           // clang-format on
+      }
+      const newToken = (e: Event) => {
+        handleInputChange(e, (): string[] => {
+            tokenValues.push('');
+            return tokenValues;
+          });
       };
-      const valueAsString = value ? value.join(' ') : '';
-      return html`
-      <textarea class="input-box" style="${styleMap(inputStyle)}" @input=${
-          handleTokensInput}
-        ?readonly="${!editable}">${valueAsString}</textarea>`;
+      return html`<div class="tokens-holder">
+          ${tokenRenders.map(tokenRender => tokenRender)}
+          <mwc-icon class="icon-button token-button" @click=${newToken}>add
+          </mwc-icon>
+          </div>`;
     };
 
     // Display multi-label inputs as separator-separated.
