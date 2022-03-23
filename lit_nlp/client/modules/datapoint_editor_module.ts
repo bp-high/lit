@@ -341,18 +341,53 @@ export class DatapointEditorModule extends LitModule {
           this.maximizedImageFields.add(key);
         }
       };
+      const uploadClicked = () => {
+        (this.shadowRoot!.querySelector(
+            '#uploadimage')! as HTMLInputElement).click();
+      };
+      const handleUpload = (e: Event) => {
+        // tslint:disable-next-line:no-any
+        const file = (e.target as any).files.length === 0 ?
+            null :
+            // tslint:disable-next-line:no-any
+            (e.target as any).files[0];
+        if (file == null) {
+          return;
+        }
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+          const result = reader.result as string;
+          this.datapointEdited = true;
+          this.editedData[key] = result;
+        });
+        reader.readAsDataURL(file);
+      };
       const maximizeImage = this.maximizedImageFields.has(key);
+      const imageSource = (value == null) ? '' : value.toString() as string;
+      const noImage = imageSource === '';
       const imageClasses = classMap({
         'image-min': !maximizeImage,
+        'hidden': noImage
       });
-      const imageSource = (value == null) ? '' : value.toString() as string;
+      const toggleClasses = classMap({
+        'image-toggle': true,
+        'hidden': noImage
+      });
+      const uploadLabel = noImage ? 'Upload image' : 'Replace image';
       return html`
         <div class="image-holder">
           <img class=${imageClasses} src=${imageSource}>
-          <mwc-icon class="image-toggle" @click=${toggleImageSize}
+          <mwc-icon class="${toggleClasses}" @click=${toggleImageSize}
                     title="Toggle full size">
             ${maximizeImage ? 'close_fullscreen' : 'open_in_full'}
           </mwc-icon>
+          <div>
+            <input type='file' id='uploadimage' accept="image/*"
+                   @change=${handleUpload} class="hidden">
+            <button class="hairline-button" @click=${uploadClicked}>
+              ${uploadLabel}
+            </button>
+          </div>
         </div>
       `;
     };
