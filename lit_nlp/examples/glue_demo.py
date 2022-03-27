@@ -39,6 +39,7 @@ flags.DEFINE_list(
         "sst2-base:sst2:https://storage.googleapis.com/what-if-tool-resources/lit-models/sst2_base.tar.gz",
         "stsb:stsb:https://storage.googleapis.com/what-if-tool-resources/lit-models/stsb_base.tar.gz",
         "mnli:mnli:https://storage.googleapis.com/what-if-tool-resources/lit-models/mnli_base.tar.gz",
+        "albert-base-v2-mrpc:mrpc:Alireza1044/albert-base-v2-mrpc"
     ], "List of models to load, as <name>:<task>:<path>. "
     "See MODELS_BY_TASK for available tasks. Path should be the output of "
     "saving a transformers model, e.g. model.save_pretrained(path) and "
@@ -54,6 +55,7 @@ MODELS_BY_TASK = {
     "sst2": glue_models.SST2Model,
     "stsb": glue_models.STSBModel,
     "mnli": glue_models.MNLIModel,
+    "mrpc": glue_models.MRPCModel,
 }
 
 # Pre-specified set of small models, which will load and run much faster.
@@ -62,6 +64,7 @@ QUICK_START_MODELS = (
     "sst2-small:sst2:https://storage.googleapis.com/what-if-tool-resources/lit-models/sst2_small.tar.gz",
     "stsb-tiny:stsb:https://storage.googleapis.com/what-if-tool-resources/lit-models/stsb_tiny.tar.gz",
     "mnli-small:mnli:https://storage.googleapis.com/what-if-tool-resources/lit-models/mnli_small.tar.gz",
+    "deberta-v3-small-finetuned-mrpc:mrpc:mrm8488/deberta-v3-small-finetuned-mrpc",
 )
 
 
@@ -115,6 +118,10 @@ def main(_):
     logging.info("Loading data for MultiNLI task.")
     datasets["mnli_dev"] = glue.MNLIData("validation_matched")
     datasets["mnli_dev_mm"] = glue.MNLIData("validation_mismatched")
+
+  if "mrpc" in tasks_to_load:
+    logging.info("Loading data for MRPC task.")
+    datasets["mrpc_dev"] = glue.MRPCData("validation")
 
   # Truncate datasets if --max_examples is set.
   for name in datasets:

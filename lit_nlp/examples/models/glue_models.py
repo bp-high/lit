@@ -541,3 +541,15 @@ class ToxicityModel(GlueModel):
         labels=["non-toxic", "toxic"],
         null_label_idx=0,
         **kw)
+
+class MRPCModel(GlueModel):
+  """Classification model on MRPC"""
+
+  def __init__(self, *args, **kw):
+    super().__init__(
+        *args,
+        text_a_name="sentence1",
+        text_b_name="sentence2",
+        labels=["0", "1"],
+        **kw)
+
