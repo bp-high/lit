@@ -39,7 +39,7 @@ flags.DEFINE_list(
         "sst2-base:sst2:https://storage.googleapis.com/what-if-tool-resources/lit-models/sst2_base.tar.gz",
         "stsb:stsb:https://storage.googleapis.com/what-if-tool-resources/lit-models/stsb_base.tar.gz",
         "mnli:mnli:https://storage.googleapis.com/what-if-tool-resources/lit-models/mnli_base.tar.gz",
-        "albert-base-v2-mrpc:mrpc:Alireza1044/albert-base-v2-mrpc"
+        "bert-large-cased-finetuned-mrpc:mrpc:gchhablani/bert-large-cased-finetuned-mrpc"
     ], "List of models to load, as <name>:<task>:<path>. "
     "See MODELS_BY_TASK for available tasks. Path should be the output of "
     "saving a transformers model, e.g. model.save_pretrained(path) and "
@@ -64,7 +64,7 @@ QUICK_START_MODELS = (
     "sst2-small:sst2:https://storage.googleapis.com/what-if-tool-resources/lit-models/sst2_small.tar.gz",
     "stsb-tiny:stsb:https://storage.googleapis.com/what-if-tool-resources/lit-models/stsb_tiny.tar.gz",
     "mnli-small:mnli:https://storage.googleapis.com/what-if-tool-resources/lit-models/mnli_small.tar.gz",
-    "deberta-v3-small-finetuned-mrpc:mrpc:mrm8488/deberta-v3-small-finetuned-mrpc",
+    "bert-base-cased-finetuned-mrpc:mrpc:gchhablani/bert-base-cased-finetuned-mrpc",
 )
 
 

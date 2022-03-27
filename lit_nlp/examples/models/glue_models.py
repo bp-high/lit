@@ -551,5 +551,6 @@ class MRPCModel(GlueModel):
         text_a_name="sentence1",
         text_b_name="sentence2",
         labels=["0", "1"],
+        null_label_idx=0,
         **kw)
 
